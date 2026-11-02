@@ -4,7 +4,8 @@
     <Copyright>(c) Syroot, licensed under MIT</Copyright>
     <Description>.NET library for loading and modifying KCL binary files.</Description>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <TargetFrameworks>netstandard2.1;net46</TargetFrameworks>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Syroot.BinaryData">
