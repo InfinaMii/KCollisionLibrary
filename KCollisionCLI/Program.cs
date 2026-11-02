@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using KclLibrary;
 
 namespace KCollisionCLI
@@ -29,10 +30,10 @@ namespace KCollisionCLI
             public int SphereRadius = 1;
 
             public bool BigEndian = true;
-            public bool IsDS = true;
-            public bool IsGCN = true;
-            public bool IsWii = true;
-            public bool Is3DS = true;
+            public bool IsDS = false;
+            public bool IsGCN = false;
+            public bool IsWii = false;
+            public bool Is3DS = false;
 
             public void PrintHelp()
             {
@@ -89,7 +90,7 @@ namespace KCollisionCLI
                 if (args[i] == "-meshAtt")
                 {
                     //2 required arguments afterwards
-                    cmdArgs.MeshesToAttributes.Add(args[i + 1], ushort.Parse(args[i + 2]));
+                    cmdArgs.MeshesToAttributes.Add(args[i + 1].Replace("\"", ""), ushort.Parse(args[i + 2]));
                 }
                 if (args[i] == "-matAtt")
                 {
@@ -151,6 +152,21 @@ namespace KCollisionCLI
                     cmdArgs.BigEndian = false;
 
                 var obj = new ObjModel(cmdArgs.ObjectFilePath);
+
+                //quick patch to make it work with material attributes
+                foreach (var mesh in obj.Meshes)
+                {
+                    if (!cmdArgs.MeshesToAttributes.TryGetValue(mesh.Name, out var attrib)) continue;
+                    var faces = new List<ObjFace>();
+                    foreach (var face in mesh.Faces)
+                    {
+                        var tempface = face;
+                        tempface.CollisionAttribute = attrib;
+                        faces.Add(tempface);
+                    }
+                    mesh.Faces = faces;
+                }
+                
                 var kcl = new KCLFile(obj.ToTriangles(), version, cmdArgs.BigEndian, settings);
                 kcl.Save(cmdArgs.CollisionFile);
             }
